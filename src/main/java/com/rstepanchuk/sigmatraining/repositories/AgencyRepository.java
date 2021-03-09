@@ -11,9 +11,11 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -98,5 +100,16 @@ public class AgencyRepository implements CrudRepository<Agency> {
       agency.setTourTransport(transportsToAgency.getOrDefault(agency.getId(), new ArrayList<>()));
     });
     return result;
+  }
+
+  @Override
+  public Set<String> getAllNames() {
+    // get names of agencies that have more than 3 years experience
+    return getAll()
+        .stream()
+        .filter(agency -> agency.getYearsInBusiness() > 3)
+        .sorted(Comparator.comparingInt(Agency::getYearsInBusiness))
+        .map(Agency::getName)
+        .collect(Collectors.toSet());
   }
 }

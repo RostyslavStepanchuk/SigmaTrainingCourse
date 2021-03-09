@@ -2,6 +2,7 @@ package com.rstepanchuk.sigmatraining.repositories;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface CrudRepository <T> {
   Optional<T> create (T entity);
@@ -12,4 +13,5 @@ public interface CrudRepository <T> {
   }
   Optional<T> getById(Long id);
   List<T> getAll();
+  Set<String> getAllNames();
 }
