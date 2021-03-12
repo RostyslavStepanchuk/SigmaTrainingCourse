@@ -1,14 +1,17 @@
 package com.rstepanchuk.sigmatraining.domain;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Agency {
 
+  private Long id;
   private String name;
   private String phone;
   private String address;
   private List<String> tourTransport;
-  private String yearsInBusiness;
+  private Integer yearsInBusiness;
   private List<Tour> tours;
 
   public String getName() {
@@ -43,11 +46,11 @@ public class Agency {
     this.tourTransport = tourTransport;
   }
 
-  public String getYearsInBusiness() {
+  public Integer getYearsInBusiness() {
     return yearsInBusiness;
   }
 
-  public void setYearsInBusiness(String yearsInBusiness) {
+  public void setYearsInBusiness(Integer yearsInBusiness) {
     this.yearsInBusiness = yearsInBusiness;
   }
 
@@ -57,5 +60,39 @@ public class Agency {
 
   public void setTours(List<Tour> tours) {
     this.tours = tours;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Agency agency = (Agency) o;
+    return Objects.equals(id, agency.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
+
+  @Override
+  public String toString() {
+    return "Agency{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        ", phone='" + phone + '\'' +
+        ", address='" + address + '\'' +
+        ", tourTransport=" + tourTransport +
+        ", yearsInBusiness=" + yearsInBusiness +
+        ", tours=" + tours +
+        "}";
   }
 }
