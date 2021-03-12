@@ -2,6 +2,7 @@ package com.rstepanchuk.sigmatraining.repositories;
 
 import com.rstepanchuk.sigmatraining.domain.Tour;
 import com.rstepanchuk.sigmatraining.repositories.mappers.TourRowMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,16 +22,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class TourRepository implements CrudRepository<Tour> {
 
-  private JdbcTemplate jdbcTemplate;
-  private TourRowMapper tourRowMapper;
-
-  @Autowired
-  public TourRepository(JdbcTemplate jdbcTemplate, TourRowMapper tourRowMapper) {
-    this.jdbcTemplate = jdbcTemplate;
-    this.tourRowMapper = tourRowMapper;
-  }
+  private final JdbcTemplate jdbcTemplate;
+  private final TourRowMapper tourRowMapper;
 
   @Override
   public Optional<Tour> create(Tour entity) {

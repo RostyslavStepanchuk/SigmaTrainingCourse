@@ -2,6 +2,7 @@ package com.rstepanchuk.sigmatraining.repositories;
 
 import com.rstepanchuk.sigmatraining.domain.Agency;
 import com.rstepanchuk.sigmatraining.repositories.mappers.AgencyRowMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -19,16 +20,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class AgencyRepository implements CrudRepository<Agency> {
 
   private final JdbcTemplate jdbcTemplate;
   private final AgencyRowMapper agencyRowMapper;
-
-  @Autowired
-  public AgencyRepository(JdbcTemplate jdbcTemplate, AgencyRowMapper agencyRowMapper) {
-    this.jdbcTemplate = jdbcTemplate;
-    this.agencyRowMapper = agencyRowMapper;
-  }
 
   @Override
   public Optional<Agency> create(Agency entity) {
