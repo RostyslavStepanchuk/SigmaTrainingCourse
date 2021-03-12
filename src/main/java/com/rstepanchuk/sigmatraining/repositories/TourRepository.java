@@ -11,10 +11,13 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -101,5 +104,17 @@ public class TourRepository implements CrudRepository<Tour> {
       tour.setCountries(countryToTour.getOrDefault(tour.getId(), new ArrayList<>()));
     });
     return result;
+  }
+
+  @Override
+  public Set<String> getAllNames() {
+    // get names of 3 cheapest tours before May of this year
+    return getAll()
+        .stream()
+        .filter(tour->tour.getDepartureDate().isBefore(Instant.parse("2021-05-01T00:00:00Z")))
+        .sorted(Comparator.comparingDouble(Tour::getAmount))
+        .map(Tour::getName)
+        .limit(3)
+        .collect(Collectors.toSet());
   }
 }
