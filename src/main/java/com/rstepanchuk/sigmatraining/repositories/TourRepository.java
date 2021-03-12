@@ -102,6 +102,29 @@ public class TourRepository implements CrudRepository<Tour> {
     return result;
   }
 
+  public List<Tour> getAllByAgencyId(Long agency_id) {
+    List<Tour> result = jdbcTemplate.query(
+        "select * from tours where agency_id = ?",
+        tourRowMapper,
+        agency_id
+    );
+    String transportQuery = "select tc.tour_id, c.name, c.id\n" +
+        "from tours t\n" +
+        "join tours_to_countries tc on t.id = tc.tour_id\n" +
+        "join countries c on tc.country_id = c.id\n" +
+        "where t.agency_id = ?";
+
+    Map<Long, List<String>> countryToTour = jdbcTemplate
+        .queryForList(transportQuery, agency_id)
+        .stream()
+        .collect(Collectors.groupingBy(row ->(Long) row.get("tour_id"),
+            Collectors.mapping(row -> (String) row.get("name"), Collectors.toList())));
+    result.forEach(tour->{
+      tour.setCountries(countryToTour.getOrDefault(tour.getId(), new ArrayList<>()));
+    });
+    return result;
+  }
+
   @Override
   public Set<String> getAllNames() {
     // get names of 3 cheapest tours before May of this year
