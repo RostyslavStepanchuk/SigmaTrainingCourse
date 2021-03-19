@@ -10,8 +10,10 @@ public class TourDto {
 
   private Long id;
   private String name;
-  private List<String> countries;
+  private List<CountryDto> countries;
   private Float amount;
   private Integer duration;
   private Instant departureDate;
+  private Long agencyId;
+
 }

@@ -11,7 +11,7 @@ public class AgencyDto {
   private String name;
   private String phone;
   private String address;
-  private List<String> tourTransport;
+  private List<TransportDto> tourTransport;
   private Integer yearsInBusiness;
   private List<TourDto> tours;
 }

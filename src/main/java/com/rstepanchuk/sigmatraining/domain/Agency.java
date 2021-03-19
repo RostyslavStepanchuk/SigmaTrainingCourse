@@ -11,7 +11,7 @@ public class Agency {
   private String name;
   private String phone;
   private String address;
-  private List<String> tourTransport;
+  private List<Transport> tourTransport;
   private Integer yearsInBusiness;
   private List<Tour> tours;
 }

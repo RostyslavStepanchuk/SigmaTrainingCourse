@@ -1,7 +1,9 @@
 package com.rstepanchuk.sigmatraining.dto;
 
 import com.rstepanchuk.sigmatraining.domain.Agency;
+import com.rstepanchuk.sigmatraining.domain.Country;
 import com.rstepanchuk.sigmatraining.domain.Tour;
+import com.rstepanchuk.sigmatraining.domain.Transport;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,22 @@ public class DtoEntityConverter {
         .stream()
         .map(element -> modelMapper.map(element, target))
         .collect(Collectors.toList());
+  }
+
+  public Country toEntity(CountryDto dto) {
+    return map(dto, Country.class);
+  }
+
+  public CountryDto toDto(Country entity) {
+    return map(entity, CountryDto.class);
+  }
+
+  public Transport toEntity(TransportDto dto) {
+    return map(dto, Transport.class);
+  }
+
+  public TransportDto toDto(Transport entity) {
+    return map(entity, TransportDto.class);
   }
 
 }
