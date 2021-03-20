@@ -10,7 +10,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +32,29 @@ public class CountryRepository implements ChildEntityRepository<Country> {
         "where tc.tour_id = ?",
         new BeanPropertyRowMapper<>(Country.class),
         parentId);
+  }
+
+  @Override
+  public Map<Long, List<Country>> getForParentListGroupedByParentId(List<Long> parentIds) {
+    String arguments = parentIds.stream().map(id -> "?").collect(Collectors.joining(","));
+    long [] argTypes = new long[parentIds.size()];
+    Arrays.fill(argTypes, Types.BIGINT);
+    String query = "select c.name, tc.tour_id " +
+        "from tours_to_countries tc " +
+        "join countries c on tc.country_id = c.id " +
+        "where tc.tour_id in (" +  arguments + ")";
+
+    return jdbcTemplate
+        .queryForList(query, parentIds.toArray(), argTypes)
+        .stream()
+        .collect(Collectors.groupingBy(row -> (Long) row.get("tour_id"),
+            Collectors.mapping(row -> {
+                  Country country = new Country();
+                  country.setId((Long)row.get("id"));
+                  country.setName((String)row.get("name"));
+                  return country;
+                },
+                Collectors.toList())));
   }
 
   @Override

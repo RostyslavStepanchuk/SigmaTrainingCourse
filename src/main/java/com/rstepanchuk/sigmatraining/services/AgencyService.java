@@ -2,8 +2,8 @@ package com.rstepanchuk.sigmatraining.services;
 
 import com.rstepanchuk.sigmatraining.domain.Agency;
 import com.rstepanchuk.sigmatraining.domain.Transport;
-import com.rstepanchuk.sigmatraining.dto.DtoEntityConverter;
 import com.rstepanchuk.sigmatraining.dto.AgencyDto;
+import com.rstepanchuk.sigmatraining.dto.DtoEntityConverter;
 import com.rstepanchuk.sigmatraining.dto.TransportDto;
 import com.rstepanchuk.sigmatraining.exceptions.ApplicationException;
 import com.rstepanchuk.sigmatraining.exceptions.NotFoundException;
@@ -60,19 +60,49 @@ public class AgencyService {
   }
 
   public List<AgencyDto> getAll() {
-    List<Agency> result = agencyRepository.getAll();
-    Map<Long, List<Transport>> transportByAgency = transportRepository.getAllGroupedByParentId();
-    return result
+    return collectFullDtoData(agencyRepository.getAll());
+  }
+
+  public List<AgencyDto> getBySearchAcrossAllFields(String searchInput) {
+    List<Agency> agencies = agencyRepository.searchAcrossAllFields(searchInput);
+    return collectFullDtoData(
+        agencies,
+        transportRepository.getForParentListGroupedByParentId(agencies
+            .stream()
+            .map(Agency::getId)
+            .collect(Collectors.toList()))
+        );
+  }
+
+  public List<AgencyDto> getBySearchAcrossAllFields(String searchInput, int pageNumber, int pageSize) {
+    List<Agency> agencies = agencyRepository.searchAcrossAllFields(searchInput, pageNumber, pageSize);
+    return collectFullDtoData(
+        agencies,
+        transportRepository.getForParentListGroupedByParentId(agencies
+            .stream()
+            .map(Agency::getId)
+            .collect(Collectors.toList()))
+    );
+  }
+
+  private List<AgencyDto> collectFullDtoData(List<Agency> agencies, Map<Long, List<Transport>> transportByAgency) {
+    return agencies
         .stream()
         .map(converter::toDto)
         .peek(agencyDto -> {
-          agencyDto.setTours(tourService.getAllByAgencyId(agencyDto.getId()));
+          agencyDto.setTours(tourService.getAllByAgencyId(agencyDto.getId())); // add Tours
           List<TransportDto> transport = transportByAgency.getOrDefault(agencyDto.getId(), new ArrayList<>())
               .stream()
               .map(converter::toDto)
               .collect(Collectors.toList());
-          agencyDto.setTourTransport(transport);
+          agencyDto.setTourTransport(transport); // add Transports
         })
         .collect(Collectors.toList());
   }
+
+  private List<AgencyDto> collectFullDtoData(List<Agency> agencies) {
+    Map<Long, List<Transport>> transportByAgency = transportRepository.getAllGroupedByParentId();
+    return collectFullDtoData(agencies, transportByAgency);
+  }
+
 }

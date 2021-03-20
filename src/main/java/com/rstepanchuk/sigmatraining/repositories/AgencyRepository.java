@@ -87,7 +87,19 @@ public class AgencyRepository implements CrudRepository<Agency> {
         .collect(Collectors.toSet());
   }
 
+  // Task *
   public List<Agency> searchAcrossAllFields(String searchInput) {
-    return null;
+    return searchAcrossAllFields(searchInput, 0, 0);
+  }
+
+  // Task **
+  public List<Agency> searchAcrossAllFields(String searchInput, int pageNumber, int pageSize) {
+    String pagination = pageSize > 0 ? String.format(" offset %d limit %d", pageSize * pageNumber, pageSize) : "";
+    String query = "select * " +
+        "from agencies " +
+        "where lower (concat(name, '|', phone, '|', address, '|', years)) like lower(?) " +
+        pagination;
+    String searchMask = '%' + searchInput + '%';
+    return jdbcTemplate.query(query, agencyRowMapper, searchMask);
   }
 }
