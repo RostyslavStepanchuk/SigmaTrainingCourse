@@ -2,8 +2,12 @@ package com.rstepanchuk.sigmatraining.listeners;
 
 import com.rstepanchuk.sigmatraining.domain.Agency;
 import com.rstepanchuk.sigmatraining.domain.Tour;
+import com.rstepanchuk.sigmatraining.dto.DtoEntityConverter;
+import com.rstepanchuk.sigmatraining.dto.AgencyDto;
 import com.rstepanchuk.sigmatraining.repositories.AgencyRepository;
 import com.rstepanchuk.sigmatraining.repositories.TourRepository;
+import com.rstepanchuk.sigmatraining.services.AgencyService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,23 +22,26 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 @Component
+@RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class ApplicationReadyListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationReadyListener.class);
 
   private final AgencyRepository agencyRepository;
   private final TourRepository tourRepository;
+  private final AgencyService agencyService;
+  private final DtoEntityConverter dtoEntityConverter;
 
-  @Autowired
-  public ApplicationReadyListener(AgencyRepository agencyRepository, TourRepository tourRepository) {
-    this.agencyRepository = agencyRepository;
-    this.tourRepository = tourRepository;
-  }
-
-  @EventListener(ApplicationReadyEvent.class)
+//  @EventListener(ApplicationReadyEvent.class)
   public void applicationReadyHandler(){
     runAgencyCheck();
     runToursCheck();
+  }
+
+  @EventListener(ApplicationReadyEvent.class)
+  public void dtoChecker(){
+    List<AgencyDto> allAgencies = agencyService.getAll(); // get all
+    int useless = 0;
   }
 
   private void runAgencyCheck(){

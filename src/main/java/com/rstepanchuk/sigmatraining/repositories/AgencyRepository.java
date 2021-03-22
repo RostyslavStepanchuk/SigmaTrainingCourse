@@ -2,6 +2,7 @@ package com.rstepanchuk.sigmatraining.repositories;
 
 import com.rstepanchuk.sigmatraining.domain.Agency;
 import com.rstepanchuk.sigmatraining.repositories.mappers.AgencyRowMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,25 +11,18 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class AgencyRepository implements CrudRepository<Agency> {
 
   private final JdbcTemplate jdbcTemplate;
   private final AgencyRowMapper agencyRowMapper;
-
-  @Autowired
-  public AgencyRepository(JdbcTemplate jdbcTemplate, AgencyRowMapper agencyRowMapper) {
-    this.jdbcTemplate = jdbcTemplate;
-    this.agencyRowMapper = agencyRowMapper;
-  }
 
   @Override
   public Optional<Agency> create(Agency entity) {
@@ -75,34 +69,14 @@ public class AgencyRepository implements CrudRepository<Agency> {
   @Override
   public Optional<Agency> getById(Long id) {
     Agency agency = jdbcTemplate.queryForObject("select * from agencies where id = ?", agencyRowMapper, id);
-    List<String> transports = jdbcTemplate.queryForList("select t.name " +
-        "from agencies_to_transport at " +
-        "join transport t on at.transport_id = t.id " + "" +
-        "where at.agency_id = ?", String.class, id);
-    if (agency != null) {
-      agency.setTourTransport(transports);
-    }
     return Optional.ofNullable(agency);
   }
 
   @Override
   public List<Agency> getAll() {
-    List<Agency> result = jdbcTemplate.query("select * from agencies", agencyRowMapper);
-    String transportQuery = "select at.agency_id, t.name " +
-        "from agencies_to_transport at " +
-        "join transport t on at.transport_id = t.id";
-    Map<Long, List<String>> transportsToAgency = jdbcTemplate
-        .queryForList(transportQuery)
-        .stream()
-        .collect(Collectors.groupingBy(row ->(Long) row.get("agency_id"),
-            Collectors.mapping(row -> (String) row.get("name"), Collectors.toList())));
-    result.forEach(agency->{
-      agency.setTourTransport(transportsToAgency.getOrDefault(agency.getId(), new ArrayList<>()));
-    });
-    return result;
+    return jdbcTemplate.query("select * from agencies", agencyRowMapper);
   }
 
-  @Override
   public Set<String> getAllNames() {
     // get names of agencies that have more than 3 years experience
     return getAll()
@@ -111,5 +85,21 @@ public class AgencyRepository implements CrudRepository<Agency> {
         .sorted(Comparator.comparingInt(Agency::getYearsInBusiness))
         .map(Agency::getName)
         .collect(Collectors.toSet());
+  }
+
+  // Task *
+  public List<Agency> searchAcrossAllFields(String searchInput) {
+    return searchAcrossAllFields(searchInput, 0, 0);
+  }
+
+  // Task **
+  public List<Agency> searchAcrossAllFields(String searchInput, int pageNumber, int pageSize) {
+    String pagination = pageSize > 0 ? String.format(" offset %d limit %d", pageSize * pageNumber, pageSize) : "";
+    String query = "select * " +
+        "from agencies " +
+        "where lower (concat(name, '|', phone, '|', address, '|', years)) like lower(?) " +
+        pagination;
+    String searchMask = '%' + searchInput + '%';
+    return jdbcTemplate.query(query, agencyRowMapper, searchMask);
   }
 }

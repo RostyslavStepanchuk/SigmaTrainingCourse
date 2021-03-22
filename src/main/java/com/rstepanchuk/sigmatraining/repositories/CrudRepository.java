@@ -13,5 +13,4 @@ public interface CrudRepository <T> {
   }
   Optional<T> getById(Long id);
   List<T> getAll();
-  Set<String> getAllNames();
 }

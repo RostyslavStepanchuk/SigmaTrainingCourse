@@ -1,17 +1,17 @@
-package com.rstepanchuk.sigmatraining.domain;
+package com.rstepanchuk.sigmatraining.dto;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class Agency {
+public class AgencyDto {
 
   private Long id;
   private String name;
   private String phone;
   private String address;
-  private List<Transport> tourTransport;
+  private List<TransportDto> tourTransport;
   private Integer yearsInBusiness;
-  private List<Tour> tours;
+  private List<TourDto> tours;
 }

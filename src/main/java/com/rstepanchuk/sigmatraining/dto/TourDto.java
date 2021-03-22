@@ -1,4 +1,4 @@
-package com.rstepanchuk.sigmatraining.domain;
+package com.rstepanchuk.sigmatraining.dto;
 
 import lombok.Data;
 
@@ -6,13 +6,14 @@ import java.time.Instant;
 import java.util.List;
 
 @Data
-public class Tour {
+public class TourDto {
 
   private Long id;
   private String name;
-  private List<Country> countries;
+  private List<CountryDto> countries;
   private Float amount;
   private Integer duration;
   private Instant departureDate;
   private Long agencyId;
+
 }

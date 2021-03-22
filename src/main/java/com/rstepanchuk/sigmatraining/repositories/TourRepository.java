@@ -2,6 +2,7 @@ package com.rstepanchuk.sigmatraining.repositories;
 
 import com.rstepanchuk.sigmatraining.domain.Tour;
 import com.rstepanchuk.sigmatraining.repositories.mappers.TourRowMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -12,25 +13,18 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class TourRepository implements CrudRepository<Tour> {
 
-  private JdbcTemplate jdbcTemplate;
-  private TourRowMapper tourRowMapper;
-
-  @Autowired
-  public TourRepository(JdbcTemplate jdbcTemplate, TourRowMapper tourRowMapper) {
-    this.jdbcTemplate = jdbcTemplate;
-    this.tourRowMapper = tourRowMapper;
-  }
+  private final JdbcTemplate jdbcTemplate;
+  private final TourRowMapper tourRowMapper;
 
   @Override
   public Optional<Tour> create(Tour entity) {
@@ -79,34 +73,22 @@ public class TourRepository implements CrudRepository<Tour> {
   @Override
   public Optional<Tour> getById(Long id) {
     Tour tour = jdbcTemplate.queryForObject("select * from tours where id = ?", tourRowMapper, id);
-    List<String> countries = jdbcTemplate.queryForList("select c.name " +
-        "from tours_to_countries tc " +
-        "join countries c on tc.country_id = c.id " +
-        "where tc.tour_id = ?", String.class, id);
-    if (tour != null) {
-      tour.setCountries(countries);
-    }
     return Optional.ofNullable(tour);
   }
 
   @Override
   public List<Tour> getAll() {
-    List<Tour> result = jdbcTemplate.query("select * from tours", tourRowMapper);
-    String transportQuery = "select c.name, tc.tour_id " +
-        "from tours_to_countries tc " +
-        "join countries c on tc.country_id = c.id";
-    Map<Long, List<String>> countryToTour = jdbcTemplate
-        .queryForList(transportQuery)
-        .stream()
-        .collect(Collectors.groupingBy(row ->(Long) row.get("tour_id"),
-            Collectors.mapping(row -> (String) row.get("name"), Collectors.toList())));
-    result.forEach(tour->{
-      tour.setCountries(countryToTour.getOrDefault(tour.getId(), new ArrayList<>()));
-    });
-    return result;
+    return jdbcTemplate.query("select * from tours", tourRowMapper);
   }
 
-  @Override
+  public List<Tour> getAllByAgencyId(Long agency_id) {
+    return jdbcTemplate.query(
+        "select * from tours where agency_id = ?",
+        tourRowMapper,
+        agency_id
+    );
+  }
+
   public Set<String> getAllNames() {
     // get names of 3 cheapest tours before May of this year
     return getAll()
