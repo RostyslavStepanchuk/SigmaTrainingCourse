@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__({@Autowired}))
+@RequiredArgsConstructor()
 public class TransportRepository implements ChildEntityRepository<Transport> {
 
   private final JdbcTemplate jdbcTemplate;

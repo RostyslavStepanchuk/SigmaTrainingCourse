@@ -1,7 +1,6 @@
 package com.rstepanchuk.sigmatraining.repositories;
 
 import com.rstepanchuk.sigmatraining.domain.Tour;
-import com.rstepanchuk.sigmatraining.domain.Transport;
 import com.rstepanchuk.sigmatraining.repositories.mappers.TourRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
